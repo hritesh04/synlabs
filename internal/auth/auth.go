@@ -3,6 +3,8 @@ package auth
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
@@ -77,8 +79,18 @@ func (a *AuthService) AdminAuth() gin.HandlerFunc {
 	}
 }
 
-func (a *AuthService) GenerateToken() {
-
+func (a *AuthService) GenerateToken(id uint, role domain.Role) (string, error) {
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID": strconv.FormatUint(uint64(id), 10),
+		"role":   role.Value(),
+		"exp":    time.Now().Add(time.Hour).Unix(),
+		"issue":  time.Now().Unix(),
+	})
+	token, err := claims.SignedString(a.Secret)
+	if err != nil {
+		return "", fmt.Errorf("error generating a token")
+	}
+	return token, nil
 }
 
 func (a *AuthService) HashPassword(password string) (string, error) {
