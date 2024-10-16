@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/hritesh04/synlabs/internal/domain"
 	"github.com/hritesh04/synlabs/internal/ports"
 	"gorm.io/gorm"
 )
@@ -15,12 +16,21 @@ func NewUserRepository(db *gorm.DB) ports.UserRepository {
 	}
 }
 
-func (r *userRepository) CreateUser() {
-
+func (r *userRepository) CreateUser(data *domain.User) error {
+	result := r.DB.Create(data)
+	if err := result.Error; err != nil {
+		return err
+	}
+	return nil
 }
 
-func (r *userRepository) GetUserByID() {
-
+func (r *userRepository) GetUserByEmail(email string) (*domain.User, error) {
+	var user domain.User
+	result := r.DB.First(&user, "email = ?", email)
+	if err := result.Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (r *userRepository) GetAllJobs() {

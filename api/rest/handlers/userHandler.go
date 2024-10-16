@@ -1,8 +1,13 @@
 package handlers
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/hritesh04/synlabs/api/rest"
+	"github.com/hritesh04/synlabs/internal/dto"
+	"github.com/hritesh04/synlabs/internal/helper"
 	"github.com/hritesh04/synlabs/internal/ports"
 	"github.com/hritesh04/synlabs/internal/repository"
 	"github.com/hritesh04/synlabs/internal/services"
@@ -31,11 +36,30 @@ func SetupUserHandler(rh rest.RestHandler) {
 }
 
 func (h *userHandler) Login(ctx *gin.Context) {
-
+	var user dto.LoginRequest
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		helper.ReturnFailed(ctx, http.StatusInternalServerError, fmt.Errorf("error parsing body : %w", err))
+		return
+	}
+	token, err := h.svc.LogIn(user)
+	if err != nil {
+		helper.ReturnFailed(ctx, http.StatusInternalServerError, fmt.Errorf("login failed : %w", err))
+		return
+	}
+	helper.ReturnSuccess(ctx, http.StatusOK, token)
 }
 
 func (h *userHandler) Signup(ctx *gin.Context) {
-
+	var user dto.SignUpRequest
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		helper.ReturnFailed(ctx, http.StatusBadRequest, fmt.Errorf("error parsing body : %w", err))
+		return
+	}
+	if err := h.svc.SignUp(user); err != nil {
+		helper.ReturnFailed(ctx, http.StatusInternalServerError, fmt.Errorf("signup failed : %w", err))
+		return
+	}
+	helper.ReturnSuccess(ctx, http.StatusOK, "user created sucessfully")
 }
 
 func (h *userHandler) UploadResume(ctx *gin.Context) {

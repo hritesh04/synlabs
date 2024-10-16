@@ -1,4 +1,7 @@
 -- Create Database
-CREATE DATABASE recuritment;
+CREATE DATABASE recruitment;
+
+\c recruitment;
+
 -- Enum
-CREATE TYPE role AS ENUM ('AUTHOR', 'USER');
+CREATE TYPE role AS ENUM ('applicant', 'admin');

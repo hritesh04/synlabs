@@ -10,8 +10,8 @@ import (
 type Role string
 
 const (
-	Applicant string = "applicant"
-	Admin     string = "admin"
+	Applicant Role = "applicant"
+	Admin     Role = "admin"
 )
 
 func (r *Role) Scan(value string) error {
@@ -24,18 +24,18 @@ func (r Role) Value() driver.Value {
 }
 
 type User struct {
-	gorm.Model      `json:"-"`
+	gorm.Model
 	Name            string  `json:"name"`
 	Email           string  `json:"email"`
 	Address         string  `json:"address"`
-	UserType        Role    `json:"role" gorm:"type:role;default:applicant"`
-	PasswordHash    string  `json:"passwordHash"`
+	UserType        Role    `json:"role" gorm:"type:role;default:'applicant'"`
+	PasswordHash    string  `json:"-"`
 	ProfileHeadline string  `json:"profileHeadline"`
-	Profile         Profile `gorm:"foreignKey:ApplicantID"`
+	Profile         Profile `json:"profile" gorm:"foreignKey:ApplicantID"`
 }
 
 type Profile struct {
-	gorm.Model        `json:"-"`
+	gorm.Model
 	ApplicantID       uint   `json:"applicant_id"`
 	ResumeFileAddress string `json:"resume_file_address"`
 	Skills            string `json:"skills"`
@@ -47,13 +47,13 @@ type Profile struct {
 }
 
 type Job struct {
-	Title             string `json:"title"`
-	Description       string `json:"description"`
-	CompanyName       string `json:"company_name"`
-	Applicants        []User `json:"applicants" grom:"foreignkey:ApplicantIDs"`
-	ApplicantIDs      []uint
+	gorm.Model
+	Title             string    `json:"title"`
+	Description       string    `json:"description"`
+	CompanyName       string    `json:"company_name"`
+	Applicants        []User    `json:"applicants" gorm:"many2many:job_applicants;"`
 	TotalApplications int       `json:"total_applications"`
 	PostedOn          time.Time `json:"posted_on"`
 	UserID            uint      `json:"user_id"`
-	PostedBy          User      `json:"posted_by"  gorm:"foreignKey:UserID"`
+	PostedBy          User      `json:"posted_by" gorm:"foreignkey:UserID"`
 }
