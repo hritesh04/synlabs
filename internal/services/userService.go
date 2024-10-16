@@ -1,18 +1,23 @@
 package services
 
-import "github.com/hritesh04/synlabs/internal/ports"
+import (
+	"github.com/hritesh04/synlabs/internal/dto"
+	"github.com/hritesh04/synlabs/internal/ports"
+)
 
 type userService struct {
 	Repo ports.UserRepository
+	Auth ports.AuthService
 }
 
-func NewUserService(repo ports.UserRepository) *userService {
+func NewUserService(repo ports.UserRepository, auth ports.AuthService) *userService {
 	return &userService{
 		Repo: repo,
+		Auth: auth,
 	}
 }
 
-func (s *userService) SignUp() {
+func (s *userService) SignUp(data dto.SignUpRequest) {
 
 }
 

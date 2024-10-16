@@ -9,16 +9,14 @@ import (
 )
 
 type userHandler struct {
-	svc  ports.UserService
-	auth ports.AuthService
+	svc ports.UserService
 }
 
 func SetupUserHandler(rh rest.RestHandler) {
 	userRepo := repository.NewUserRepository(rh.DB)
 
 	handler := userHandler{
-		svc:  services.NewUserService(userRepo),
-		auth: rh.Auth,
+		svc: services.NewUserService(userRepo, rh.Auth),
 	}
 
 	userRoute := rh.Router
@@ -27,7 +25,7 @@ func SetupUserHandler(rh rest.RestHandler) {
 	userRoute.POST("/signup", handler.Signup)
 	userRoute.POST("/uploadResune", handler.UploadResume)
 	protectedUserRoute := userRoute.Group("/jobs")
-	protectedUserRoute.Use(handler.auth.Authorize())
+	protectedUserRoute.Use(rh.Auth.Authorize())
 	protectedUserRoute.GET("/", handler.AllJobs)
 	protectedUserRoute.GET("/apply", handler.ApplyToJob)
 }

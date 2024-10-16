@@ -1,17 +1,22 @@
 package ports
 
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/hritesh04/synlabs/internal/dto"
+)
+
 type AuthService interface {
-	Authorize()
-	Validate()
-	UserAuth()
-	AdminAuth()
+	Authorize() gin.HandlerFunc
+	Validate(string) (jwt.MapClaims, error)
+	AdminAuth() gin.HandlerFunc
 	GenerateToken()
-	HashPassword()
-	ComparePassword()
+	HashPassword(string) (string, error)
+	ComparePassword(string, string) bool
 }
 
 type UserService interface {
-	SignUp()
+	SignUp(dto.SignUpRequest)
 	LogIn()
 	UploadResume()
 	GetAllJobs()
