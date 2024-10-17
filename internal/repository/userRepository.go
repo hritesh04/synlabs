@@ -68,12 +68,24 @@ func (r *userRepository) GetAllJobs() (*[]domain.Job, error) {
 func (r *userRepository) AddUserToJob(userID, jobID primitive.ObjectID) error {
 	jobCol := r.DB.Collection("jobs")
 	update := bson.M{
-		"$inc":  bson.M{"total_applicants": 1},
+		"$inc":  bson.M{"total_applications": 1},
 		"$push": bson.M{"applicants": userID},
 	}
-	if err := jobCol.FindOneAndUpdate(context.TODO(), bson.D{{"_id", jobID}}, update); err != nil {
-		return err.Err()
+	var job domain.Job
+	if err := jobCol.FindOne(context.TODO(), bson.D{{"_id", jobID}}).Decode(&job); err != nil {
+		return err
 	}
+
+	if job.Applicants == nil {
+		_, err := jobCol.UpdateOne(context.TODO(), bson.D{{"_id", jobID}}, bson.M{"$set": bson.M{"applicants": []primitive.ObjectID{}}})
+		if err != nil {
+			return err
+		}
+	}
+	if _, err := jobCol.UpdateOne(context.TODO(), bson.D{{"_id", jobID}}, update); err != nil {
+		return err
+	}
+
 	return nil
 }
 

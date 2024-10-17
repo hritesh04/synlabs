@@ -21,16 +21,16 @@ func SetupUserHandler(rh rest.RestHandler) {
 	userRepo := repository.NewUserRepository(rh.DB)
 
 	handler := userHandler{
-		svc: services.NewUserService(userRepo, rh.Auth),
+		svc: services.NewUserService(userRepo, rh.Auth, rh.Parser),
 	}
 
 	userRoute := rh.Router
 
 	userRoute.POST("/login", handler.Login)
 	userRoute.POST("/signup", handler.Signup)
-	userRoute.POST("/uploadResune", handler.UploadResume)
+	userRoute.Use(rh.Auth.Authorize())
+	userRoute.POST("/uploadResume", handler.UploadResume)
 	protectedUserRoute := userRoute.Group("/jobs")
-	protectedUserRoute.Use(rh.Auth.Authorize())
 	protectedUserRoute.GET("/", handler.AllJobs)
 	protectedUserRoute.GET("/apply", handler.ApplyToJob)
 }
@@ -63,7 +63,23 @@ func (h *userHandler) Signup(ctx *gin.Context) {
 }
 
 func (h *userHandler) UploadResume(ctx *gin.Context) {
-
+	file, err := ctx.FormFile("resume")
+	if err != nil {
+		helper.ReturnFailed(ctx, http.StatusBadRequest, err)
+		return
+	}
+	fileType := file.Header.Get("Content-Type")
+	if fileType != "application/pdf" && fileType != "application/vnd.openxmlformats-officedocument.wordprocessingml.document" {
+		helper.ReturnFailed(ctx, http.StatusBadRequest, "file type not supported")
+		return
+	}
+	userID := ctx.Request.Header.Get("userID")
+	fmt.Println(userID)
+	if err := h.svc.UploadResume(file, userID); err != nil {
+		helper.ReturnFailed(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	helper.ReturnSuccess(ctx, http.StatusOK, "resume uploaded sucessfully")
 }
 
 func (h *userHandler) AllJobs(ctx *gin.Context) {
