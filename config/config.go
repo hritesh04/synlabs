@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 
@@ -13,12 +12,14 @@ type AppConfig struct {
 	ServerPort string
 	Dsn        string
 	Secret     string
+	ParserUrl  string
+	ApiKey     string
 }
 
 func SetupEnv() (cfg AppConfig, err error) {
 
 	if os.Getenv("APP_ENV") == "dev" {
-		godotenv.Load(".env.example")
+		godotenv.Load()
 	}
 
 	httpPort := ":" + os.Getenv("PORT")
@@ -28,16 +29,24 @@ func SetupEnv() (cfg AppConfig, err error) {
 		httpPort = ":3000"
 	}
 
-	Dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", os.Getenv("HOST"), os.Getenv("USER_NAME"), os.Getenv("PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_PORT"))
+	Dsn := os.Getenv("DSN")
 
 	if len(Dsn) < 1 {
 		return AppConfig{}, errors.New("DSN variables not found")
 	}
 
+	apiKey := os.Getenv("API_KEY")
+	if len(apiKey) < 1 {
+		return AppConfig{}, errors.New("api key not found")
+	}
+	parserUrl := os.Getenv("PARSER_URL")
+	if len(parserUrl) < 1 {
+		return AppConfig{}, errors.New("parser url not found")
+	}
 	appSecret := os.Getenv("SECRET")
 	if len(appSecret) < 1 {
 		return AppConfig{}, errors.New("app secret not found")
 	}
 
-	return AppConfig{ServerPort: httpPort, Dsn: Dsn, Secret: appSecret}, nil
+	return AppConfig{ServerPort: httpPort, Dsn: Dsn, Secret: appSecret, ParserUrl: parserUrl, ApiKey: apiKey}, nil
 }

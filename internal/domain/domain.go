@@ -4,7 +4,7 @@ import (
 	"database/sql/driver"
 	"time"
 
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Role string
@@ -24,36 +24,34 @@ func (r Role) Value() driver.Value {
 }
 
 type User struct {
-	gorm.Model
-	Name            string  `json:"name"`
-	Email           string  `json:"email"`
-	Address         string  `json:"address"`
-	UserType        Role    `json:"role" gorm:"type:role;default:'applicant'"`
-	PasswordHash    string  `json:"-"`
-	ProfileHeadline string  `json:"profileHeadline"`
-	Profile         Profile `json:"profile" gorm:"foreignKey:ApplicantID"`
-}
-
-type Profile struct {
-	gorm.Model
-	ApplicantID       uint   `json:"applicant_id"`
-	ResumeFileAddress string `json:"resume_file_address"`
-	Skills            string `json:"skills"`
-	Education         string `json:"education"`
-	Experience        string `json:"experience"`
-	Name              string `json:"name"`
-	Email             string `json:"email"`
-	Phone             string `json:"phone"`
+	ID              primitive.ObjectID
+	Name            string  `bson:"name"`
+	Email           string  `bson:"email"`
+	Address         string  `bson:"address"`
+	UserType        Role    `bson:"role"`
+	PasswordHash    string  `bson:"passwordHash"`
+	ProfileHeadline string  `bson:"profileHeadline"`
+	Profile         Profile `bson:"profile"`
 }
 
 type Job struct {
-	gorm.Model
-	Title             string    `json:"title"`
-	Description       string    `json:"description"`
-	CompanyName       string    `json:"company_name"`
-	Applicants        []User    `json:"applicants" gorm:"many2many:job_applicants;"`
-	TotalApplications int       `json:"total_applications"`
-	PostedOn          time.Time `json:"posted_on"`
-	UserID            uint      `json:"user_id"`
-	PostedBy          User      `json:"posted_by" gorm:"foreignkey:UserID"`
+	Title             string    `bson:"title"`
+	Description       string    `bson:"description"`
+	CompanyName       string    `bson:"company_name"`
+	Applicants        []User    `bson:"applicants" gorm:"many2many:job_applicants;"`
+	TotalApplications int       `bson:"total_applications"`
+	PostedOn          time.Time `bson:"posted_on"`
+	UserID            uint      `bson:"user_id"`
+	PostedBy          User      `bson:"posted_by"`
+}
+
+type Profile struct {
+	ApplicantID       primitive.ObjectID `bson:"applicant_id"`
+	ResumeFileAddress string             `bson:"resume_file_address"`
+	Skills            []string           `bson:"skills"`
+	Education         []interface{}      `bson:"education"`
+	Experience        []interface{}      `bson:"experience"`
+	Name              string             `bson:"name"`
+	Email             string             `bson:"email"`
+	Phone             string             `bson:"phone"`
 }

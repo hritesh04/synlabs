@@ -1,31 +1,31 @@
 services:
-  backend:
-    context: .
-    port:
-      - 3000:3000
-    environment:
-      - HOST=db
-      - DB_PORT=5432
-      - USER_NAME=postgres
-      - DB_NAME=recruitment
-      - PASSWORD=postgres
-      - SECRET=secret
-    depends_on:
-      db:
-        condition: service_healthy
+  # backend:
+  #   context: .
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     - HOST=db
+  #     - DB_PORT=27017
+  #     - USER_NAME=
+  #     - DB_NAME=recruitment
+  #     - PASSWORD=
+  #     - SECRET=secret
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
   
   db:
-    image: postgres
+    image: mongo
     volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./docker/db/seed/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-data:/data/db
+      - ./docker/db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    ports:
+      - 27017:27017
+    restart: always
     environment:
-      - POSTGRES_DB=recruitment
-      - POSTGRES_PASSWORD=postgres
-    port:
-      - 5432:5432
+      MONGO_INITDB_DATABASE: recruitment
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "mongo --eval 'db.runCommand({ ping: 1 })'"]
       interval: 4s
       timeout: 2s
       retries: 5

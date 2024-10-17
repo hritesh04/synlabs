@@ -1,34 +1,43 @@
 package repository
 
 import (
+	"context"
+	"errors"
+	"fmt"
+
 	"github.com/hritesh04/synlabs/internal/domain"
 	"github.com/hritesh04/synlabs/internal/ports"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type userRepository struct {
-	DB *gorm.DB
+	DB *mongo.Database
 }
 
-func NewUserRepository(db *gorm.DB) ports.UserRepository {
+func NewUserRepository(db *mongo.Database) ports.UserRepository {
 	return &userRepository{
 		DB: db,
 	}
 }
 
 func (r *userRepository) CreateUser(data *domain.User) error {
-	result := r.DB.Create(data)
-	if err := result.Error; err != nil {
-		return err
+	userCol := r.DB.Collection("users")
+	_, err := userCol.InsertOne(context.TODO(), data)
+	fmt.Println("here")
+	if err != nil {
+		fmt.Println(err)
+		return errors.New("user creation failed")
 	}
 	return nil
 }
 
 func (r *userRepository) GetUserByEmail(email string) (*domain.User, error) {
 	var user domain.User
-	result := r.DB.First(&user, "email = ?", email)
-	if err := result.Error; err != nil {
-		return nil, err
+	userCol := r.DB.Collection("users")
+	err := userCol.FindOne(context.TODO(), bson.D{{"email", email}}).Decode(&user)
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.New("No user found with the email")
 	}
 	return &user, nil
 }
@@ -41,6 +50,11 @@ func (r *userRepository) AddUserToJob() {
 
 }
 
-func (r *userRepository) CreateProfile() {
-
+func (r *userRepository) CreateProfile(data *domain.Profile) error {
+	userCol := r.DB.Collection("profiles")
+	_, err := userCol.InsertOne(context.TODO(), data)
+	if err != nil {
+		return errors.New("user creation failed")
+	}
+	return nil
 }

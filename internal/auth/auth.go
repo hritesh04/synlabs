@@ -3,7 +3,6 @@ package auth
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -79,9 +78,9 @@ func (a *AuthService) AdminAuth() gin.HandlerFunc {
 	}
 }
 
-func (a *AuthService) GenerateToken(id uint, role domain.Role) (string, error) {
+func (a *AuthService) GenerateToken(id string, role domain.Role) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userID": strconv.FormatUint(uint64(id), 10),
+		"userID": id,
 		"role":   role.Value(),
 		"exp":    time.Now().Add(time.Hour).Unix(),
 		"issue":  time.Now().Unix(),

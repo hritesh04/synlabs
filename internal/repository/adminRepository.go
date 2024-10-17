@@ -2,14 +2,14 @@ package repository
 
 import (
 	"github.com/hritesh04/synlabs/internal/ports"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type adminRepository struct {
-	DB *gorm.DB
+	DB *mongo.Database
 }
 
-func NewAdminRepository(db *gorm.DB) ports.AdminRepository {
+func NewAdminRepository(db *mongo.Database) ports.AdminRepository {
 	return &adminRepository{
 		DB: db,
 	}
