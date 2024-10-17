@@ -82,7 +82,7 @@ func (a *AuthService) GenerateToken(id string, role domain.Role) (string, error)
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userID": id,
 		"role":   role.Value(),
-		"exp":    time.Now().Add(time.Hour).Unix(),
+		"exp":    time.Now().Add(time.Hour * 12).Unix(),
 		"issue":  time.Now().Unix(),
 	})
 	token, err := claims.SignedString(a.Secret)

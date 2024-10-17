@@ -46,6 +46,7 @@ func (h *userHandler) Login(ctx *gin.Context) {
 		helper.ReturnFailed(ctx, http.StatusInternalServerError, fmt.Errorf("login failed : %w", err))
 		return
 	}
+	ctx.SetCookie("syn", token, 3600*24, "/", "", false, true)
 	helper.ReturnSuccess(ctx, http.StatusOK, token)
 }
 
