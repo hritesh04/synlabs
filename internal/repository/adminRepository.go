@@ -1,7 +1,13 @@
 package repository
 
 import (
+	"context"
+	"errors"
+
+	"github.com/hritesh04/synlabs/internal/domain"
 	"github.com/hritesh04/synlabs/internal/ports"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -15,12 +21,39 @@ func NewAdminRepository(db *mongo.Database) ports.AdminRepository {
 	}
 }
 
-func (r *adminRepository) CreateJob() {
-
+func (r *adminRepository) CreateJob(data *domain.Job) error {
+	jobsCol := r.DB.Collection("jobs")
+	_, err := jobsCol.InsertOne(context.TODO(), data)
+	if err != nil {
+		return errors.New("user creation failed")
+	}
+	return nil
 }
 
-func (r *adminRepository) GetJobByID() {
+func (r *adminRepository) GetJobByID(jobID primitive.ObjectID) (*domain.Job, error) {
+	var job []domain.Job
+	jobCol := r.DB.Collection("jobs")
 
+	matchStage := bson.D{{"$match", bson.D{{"_id", jobID}}}}
+	lookupStage := bson.D{{
+		"$lookup", bson.D{
+			{"from", "users"},
+			{"localField", "applicants"},
+			{"foreignField", "_id"},
+			{"as", "applicant_details"},
+		},
+	}}
+
+	scanner, err := jobCol.Aggregate(context.TODO(), mongo.Pipeline{matchStage, lookupStage})
+	if err != nil {
+		return nil, err
+	}
+	defer scanner.Close(context.TODO())
+
+	if err := scanner.All(context.TODO(), &job); err != nil {
+		return nil, err
+	}
+	return &job[0], nil
 }
 
 func (r *adminRepository) GetAllUsers() {

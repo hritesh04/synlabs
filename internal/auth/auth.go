@@ -69,7 +69,7 @@ func (a *AuthService) Validate(tokenString string) (jwt.MapClaims, error) {
 func (a *AuthService) AdminAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		role := ctx.Request.Header.Get("role")
-		if domain.Role(role) != domain.Admin {
+		if domain.Role(role) == domain.Admin {
 			ctx.Next()
 			return
 		}

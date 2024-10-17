@@ -14,7 +14,7 @@ type AuthService interface {
 	Authorize() gin.HandlerFunc
 	Validate(string) (jwt.MapClaims, error)
 	AdminAuth() gin.HandlerFunc
-	GenerateToken(uint, domain.Role) (string, error)
+	GenerateToken(string, domain.Role) (string, error)
 	HashPassword(string) (string, error)
 	ComparePassword(string, string) bool
 }
@@ -30,7 +30,7 @@ type UserService interface {
 
 type AdminService interface {
 	CreateJob(*domain.Job) error
-	GetJobInfo()
+	GetJobInfo(string) (*domain.Job, error)
 	GetAllUsers()
 	GetUserProfile()
 }
@@ -46,7 +46,7 @@ type UserRepository interface {
 
 type AdminRepository interface {
 	CreateJob(*domain.Job) error
-	GetJobByID()
+	GetJobByID(primitive.ObjectID) (*domain.Job, error)
 	GetAllUsers()
 	GetProfileByUserID()
 }

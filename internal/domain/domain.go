@@ -24,13 +24,13 @@ func (r Role) Value() driver.Value {
 }
 
 type User struct {
-	ID              primitive.ObjectID `bson:"_id,omitempty"`
-	Name            string             `bson:"name"`
-	Email           string             `bson:"email"`
-	Address         string             `bson:"address"`
-	UserType        Role               `bson:"role"`
-	PasswordHash    string             `bson:"passwordHash"`
-	ProfileHeadline string             `bson:"profileHeadline"`
+	ID              primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Name            string             `bson:"name" json:"name"`
+	Email           string             `bson:"email" json:"email"`
+	Address         string             `bson:"address" json:"address"`
+	UserType        Role               `bson:"role" json:"role"`
+	PasswordHash    string             `bson:"passwordHash" json:"-"`
+	ProfileHeadline string             `bson:"profileHeadline" json:"profile_headline"`
 }
 
 type Job struct {
@@ -38,22 +38,23 @@ type Job struct {
 	Title             string               `bson:"title" json:"title"`
 	Description       string               `bson:"description" json:"description"`
 	CompanyName       string               `bson:"company_name" json:"company_name"`
-	Applicants        []primitive.ObjectID `bson:"applicants" json:"applicants"`
+	Applicants        []primitive.ObjectID `bson:"applicants" json:"-"`
+	ApplicantDetails  []User               `bson:"applicant_details,omitempty" json:"applicant_details"`
 	TotalApplications int                  `bson:"total_applications" json:"total_applications"`
 	PostedOn          time.Time            `bson:"posted_on" json:"posted_on"`
 	PostedBy          primitive.ObjectID   `bson:"posted_by" json:"posted_by"`
 }
 
 type Profile struct {
-	ID                primitive.ObjectID `bson:"_id,omitempty"`
-	ApplicantID       primitive.ObjectID `bson:"applicant_id"`
-	ResumeFileAddress string             `bson:"resume_file_address"`
-	Skills            []string           `bson:"skills"`
-	Education         []Education        `bson:"education"`
-	Experience        []Experience       `bson:"experience"`
-	Name              string             `bson:"name"`
-	Email             string             `bson:"email"`
-	Phone             string             `bson:"phone"`
+	ID                primitive.ObjectID `bson:"_id,omitempty" json:""id`
+	ApplicantID       primitive.ObjectID `bson:"applicant_id" json:"applicant_id"`
+	ResumeFileAddress string             `bson:"resume_file_address" json:"resume_file_address"`
+	Skills            []string           `bson:"skills" json:"skills"`
+	Education         []Education        `bson:"education" json:"education"`
+	Experience        []Experience       `bson:"experience" json:"experience"`
+	Name              string             `bson:"name" json:"name"`
+	Email             string             `bson:"email" json:"email"`
+	Phone             string             `bson:"phone" json:"phone"`
 }
 
 type Education struct {

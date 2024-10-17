@@ -12,6 +12,6 @@ func ReturnSuccess(g *gin.Context, status int, data interface{}) {
 func ReturnFailed(g *gin.Context, status int, data interface{}) {
 	g.JSON(status, gin.H{
 		"success": false,
-		"data":    data,
+		"error":   data.(error).Error(),
 	})
 }
