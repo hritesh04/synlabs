@@ -8,6 +8,7 @@ import (
 	"github.com/hritesh04/synlabs/internal/domain"
 	"github.com/hritesh04/synlabs/internal/ports"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -42,12 +43,38 @@ func (r *userRepository) GetUserByEmail(email string) (*domain.User, error) {
 	return &user, nil
 }
 
-func (r *userRepository) GetAllJobs() {
-
+func (r *userRepository) CheckUserExists(userID primitive.ObjectID) error {
+	userCol := r.DB.Collection("users")
+	if err := userCol.FindOne(context.TODO(), bson.D{{"_id", userID}}).Err(); err == mongo.ErrNoDocuments {
+		return errors.New("No user found with the email")
+	}
+	return nil
 }
 
-func (r *userRepository) AddUserToJob() {
+func (r *userRepository) GetAllJobs() (*[]domain.Job, error) {
+	var jobs []domain.Job
+	jobCol := r.DB.Collection("jobs")
 
+	scanner, err := jobCol.Find(context.TODO(), bson.D{})
+	if err != nil {
+		return nil, err
+	}
+	if err := scanner.All(context.TODO(), &jobs); err != nil {
+		return nil, err
+	}
+	return &jobs, nil
+}
+
+func (r *userRepository) AddUserToJob(userID, jobID primitive.ObjectID) error {
+	jobCol := r.DB.Collection("jobs")
+	update := bson.M{
+		"$inc":  bson.M{"total_applicants": 1},
+		"$push": bson.M{"applicants": userID},
+	}
+	if err := jobCol.FindOneAndUpdate(context.TODO(), bson.D{{"_id", jobID}}, update); err != nil {
+		return err.Err()
+	}
+	return nil
 }
 
 func (r *userRepository) CreateProfile(data *domain.Profile) error {

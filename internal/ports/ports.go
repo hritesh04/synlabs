@@ -1,10 +1,13 @@
 package ports
 
 import (
+	"mime/multipart"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/hritesh04/synlabs/internal/domain"
 	"github.com/hritesh04/synlabs/internal/dto"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type AuthService interface {
@@ -19,13 +22,14 @@ type AuthService interface {
 type UserService interface {
 	SignUp(dto.SignUpRequest) error
 	LogIn(dto.LoginRequest) (string, error)
-	UploadResume()
-	GetAllJobs()
+	UploadResume(*multipart.FileHeader, string) error
+	GetAllJobs() (*[]domain.Job, error)
 	GetJobByID()
+	ApplyToJob(string, string) error
 }
 
 type AdminService interface {
-	CreateJob()
+	CreateJob(*domain.Job) error
 	GetJobInfo()
 	GetAllUsers()
 	GetUserProfile()
@@ -34,13 +38,14 @@ type AdminService interface {
 type UserRepository interface {
 	CreateUser(*domain.User) error
 	GetUserByEmail(string) (*domain.User, error)
-	GetAllJobs()
-	AddUserToJob()
-	CreateProfile()
+	CheckUserExists(primitive.ObjectID) error
+	GetAllJobs() (*[]domain.Job, error)
+	AddUserToJob(primitive.ObjectID, primitive.ObjectID) error
+	CreateProfile(*domain.Profile) error
 }
 
 type AdminRepository interface {
-	CreateJob()
+	CreateJob(*domain.Job) error
 	GetJobByID()
 	GetAllUsers()
 	GetProfileByUserID()

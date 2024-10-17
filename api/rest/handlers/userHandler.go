@@ -67,9 +67,20 @@ func (h *userHandler) UploadResume(ctx *gin.Context) {
 }
 
 func (h *userHandler) AllJobs(ctx *gin.Context) {
-
+	result, err := h.svc.GetAllJobs()
+	if err != nil {
+		helper.ReturnFailed(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	helper.ReturnSuccess(ctx, http.StatusOK, result)
 }
 
 func (h *userHandler) ApplyToJob(ctx *gin.Context) {
-
+	userID := ctx.GetHeader("userID")
+	jobsID := ctx.Query("job_id")
+	if err := h.svc.ApplyToJob(userID, jobsID); err != nil {
+		helper.ReturnFailed(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	helper.ReturnSuccess(ctx, http.StatusOK, "applied to job sucessfully")
 }

@@ -62,10 +62,34 @@ func (s *userService) UploadResume() {
 
 }
 
-func (s *userService) GetAllJobs() {
-
+func (s *userService) GetAllJobs() (*[]domain.Job, error) {
+	jobs, err := s.Repo.GetAllJobs()
+	if err != nil {
+		return nil, err
+	}
+	return jobs, nil
 }
 
 func (s *userService) GetJobByID() {
 
+}
+
+func (s *userService) ApplyToJob(userID, jobID string) error {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return fmt.Errorf("invalid user_id")
+	}
+	jobObjID, err := primitive.ObjectIDFromHex(jobID)
+	if err != nil {
+		return fmt.Errorf("invalid job_id")
+	}
+
+	if err := s.Repo.CheckUserExists(userObjID); err != nil {
+		return fmt.Errorf("user not found")
+	}
+
+	if err := s.Repo.AddUserToJob(userObjID, jobObjID); err != nil {
+		return err
+	}
+	return nil
 }
