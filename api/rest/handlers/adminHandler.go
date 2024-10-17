@@ -57,9 +57,20 @@ func (h *adminHandler) GetJob(ctx *gin.Context) {
 }
 
 func (h *adminHandler) GetAllUsers(ctx *gin.Context) {
-
+	result, err := h.svc.GetAllUsers()
+	if err != nil {
+		helper.ReturnFailed(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	helper.ReturnSuccess(ctx, http.StatusOK, result)
 }
 
 func (h *adminHandler) GetApplicant(ctx *gin.Context) {
-
+	applicantID := ctx.Param("applicantID")
+	result, err := h.svc.GetUserProfile(applicantID)
+	if err != nil {
+		helper.ReturnFailed(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	helper.ReturnSuccess(ctx, http.StatusOK, result)
 }

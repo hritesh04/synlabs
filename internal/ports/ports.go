@@ -24,15 +24,14 @@ type UserService interface {
 	LogIn(dto.LoginRequest) (string, error)
 	UploadResume(*multipart.FileHeader, string) error
 	GetAllJobs() (*[]domain.Job, error)
-	GetJobByID()
 	ApplyToJob(string, string) error
 }
 
 type AdminService interface {
 	CreateJob(*domain.Job) error
 	GetJobInfo(string) (*domain.Job, error)
-	GetAllUsers()
-	GetUserProfile()
+	GetAllUsers() (*[]domain.User, error)
+	GetUserProfile(string) (*domain.Profile, error)
 }
 
 type UserRepository interface {
@@ -47,6 +46,6 @@ type UserRepository interface {
 type AdminRepository interface {
 	CreateJob(*domain.Job) error
 	GetJobByID(primitive.ObjectID) (*domain.Job, error)
-	GetAllUsers()
-	GetProfileByUserID()
+	GetAllUsers() (*[]domain.User, error)
+	GetProfileByUserID(primitive.ObjectID) (*domain.Profile, error)
 }

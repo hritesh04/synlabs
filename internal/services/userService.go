@@ -89,10 +89,6 @@ func (s *userService) GetAllJobs() (*[]domain.Job, error) {
 	return jobs, nil
 }
 
-func (s *userService) GetJobByID() {
-
-}
-
 func (s *userService) ApplyToJob(userID, jobID string) error {
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {

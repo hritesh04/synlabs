@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/hritesh04/synlabs/internal/domain"
 	"github.com/hritesh04/synlabs/internal/ports"
@@ -25,9 +24,7 @@ func NewUserRepository(db *mongo.Database) ports.UserRepository {
 func (r *userRepository) CreateUser(data *domain.User) error {
 	userCol := r.DB.Collection("users")
 	_, err := userCol.InsertOne(context.TODO(), data)
-	fmt.Println("here")
 	if err != nil {
-		fmt.Println(err)
 		return errors.New("user creation failed")
 	}
 	return nil

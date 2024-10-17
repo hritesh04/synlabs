@@ -74,7 +74,6 @@ func (h *userHandler) UploadResume(ctx *gin.Context) {
 		return
 	}
 	userID := ctx.Request.Header.Get("userID")
-	fmt.Println(userID)
 	if err := h.svc.UploadResume(file, userID); err != nil {
 		helper.ReturnFailed(ctx, http.StatusInternalServerError, err)
 		return

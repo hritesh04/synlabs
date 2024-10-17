@@ -41,10 +41,22 @@ func (s *adminService) GetJobInfo(jobID string) (*domain.Job, error) {
 	return result, nil
 }
 
-func (s *adminService) GetAllUsers() {
-
+func (s *adminService) GetAllUsers() (*[]domain.User, error) {
+	result, err := s.Repo.GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
-func (s *adminService) GetUserProfile() {
-
+func (s *adminService) GetUserProfile(applicantID string) (*domain.Profile, error) {
+	applicantObjID, err := primitive.ObjectIDFromHex(applicantID)
+	if err != nil {
+		return nil, err
+	}
+	result, err := s.Repo.GetProfileByUserID(applicantObjID)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

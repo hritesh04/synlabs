@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/hritesh04/synlabs/internal/domain"
 	"github.com/hritesh04/synlabs/internal/ports"
@@ -48,18 +49,42 @@ func (r *adminRepository) GetJobByID(jobID primitive.ObjectID) (*domain.Job, err
 	if err != nil {
 		return nil, err
 	}
-	defer scanner.Close(context.TODO())
+	defer func() {
+		if err := scanner.Close(context.TODO()); err != nil {
+			log.Println("error closing db row scanner", "location", "getAllUsers")
+		}
 
+	}()
 	if err := scanner.All(context.TODO(), &job); err != nil {
 		return nil, err
 	}
 	return &job[0], nil
 }
 
-func (r *adminRepository) GetAllUsers() {
+func (r *adminRepository) GetAllUsers() (*[]domain.User, error) {
+	var users []domain.User
+	userCol := r.DB.Collection("users")
+	scanner, err := userCol.Find(context.TODO(), bson.D{})
+	defer func() {
+		if err := scanner.Close(context.TODO()); err != nil {
+			log.Println("error closing db row scanner", "location", "getAllUsers")
+		}
 
+	}()
+	if err != nil {
+		return nil, err
+	}
+	if err := scanner.All(context.TODO(), &users); err != nil {
+		return nil, err
+	}
+	return &users, nil
 }
 
-func (r *adminRepository) GetProfileByUserID() {
-
+func (r *adminRepository) GetProfileByUserID(applicantID primitive.ObjectID) (*domain.Profile, error) {
+	var profile domain.Profile
+	profileCol := r.DB.Collection("profiles")
+	if err := profileCol.FindOne(context.TODO(), bson.D{{"applicant_id", applicantID}}).Decode(&profile); err != nil {
+		return nil, err
+	}
+	return &profile, nil
 }
